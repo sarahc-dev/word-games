@@ -28,4 +28,12 @@ class UnscrambleTest {
         val actual = Unscramble().guessWord("random", mockInput)
         assertEquals(expected, actual)
     }
+
+    @Test
+    fun `if users enters nothing, returns fail message`() {
+        val mockInput = fun(): String? { return null }
+        val expected = "Oops, the correct word was: random"
+        val actual = Unscramble().guessWord("random", mockInput)
+        assertEquals(expected, actual)
+    }
 }
