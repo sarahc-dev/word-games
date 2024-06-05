@@ -1,6 +1,7 @@
-class Unscramble {
-    private val words = listOf("pound", "trice", "hired", "comma", "logic")
+import java.io.File
+import java.nio.file.Path
 
+class Unscramble {
     private fun getInput():String? = readlnOrNull()
 
     private fun printWelcomeMessage() {
@@ -11,9 +12,15 @@ class Unscramble {
     }
 
     fun run() {
-        val randomWord = words.random()
-        val result = guessWord(randomWord, ::getInput)
+        val result = guessWord(getRandomWord(), ::getInput)
         println(result)
+    }
+
+    fun getRandomWord(): String {
+        val cwd = Path.of("").toAbsolutePath()
+        val file = File("$cwd/src/main/words.txt")
+        val listOf5LetterWords = file.bufferedReader().readLines().filter { it.length == 5}
+        return listOf5LetterWords.random()
     }
 
     fun guessWord(word: String, userInput: () -> String?): String {

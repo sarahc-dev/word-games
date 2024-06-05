@@ -46,4 +46,14 @@ class UnscrambleTest {
         }
         assertEquals(Unit, result)
     }
+
+    @Test
+    fun `given a text list of words, returns a random 5 letter word`() {
+        val unscramble = Unscramble()
+        assertEquals(unscramble.getRandomWord().length, 5)
+        assertEquals(unscramble.getRandomWord().length, 5)
+        assertEquals(unscramble.getRandomWord().length, 5)
+        assertEquals(unscramble.getRandomWord().length, 5)
+        assertEquals(unscramble.getRandomWord().length, 5)
+    }
 }
