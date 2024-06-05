@@ -1,5 +1,6 @@
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
 
 class UnscrambleTest {
     @Test
@@ -35,5 +36,14 @@ class UnscrambleTest {
         val expected = "Oops, the correct word was: random"
         val actual = Unscramble().guessWord("random", mockInput)
         assertEquals(expected, actual)
+    }
+
+    @Test
+    fun `exception absence testing`() {
+        val unscramble = Unscramble()
+        val result = assertDoesNotThrow("Should not throw an exception") {
+            unscramble.run()
+        }
+        assertEquals(Unit, result)
     }
 }
