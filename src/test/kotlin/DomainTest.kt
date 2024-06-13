@@ -1,18 +1,17 @@
-import TestClasses.GuessGetterFake
-import TestClasses.MessageDisplayFake
-import TestClasses.RandomWordGetterFake
-import TestClasses.WordListGetterTest
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
+import testClasses.*
+
 
 class DomainTest {
     val wordListGetterTest = WordListGetterTest()
     val testMessageDisplay = MessageDisplayFake()
+    val testMessageDisplayList = MessageDisplayListFake()
 
     @Nested
-    @DisplayName("Runs unscramble game")
+    @DisplayName("Run")
     inner class Run {
         @Test
         fun `if user input matches the word, returns success message`() {
@@ -123,6 +122,72 @@ class DomainTest {
             ).run()
             val actual = testMessageDisplay.getLastMessageForTest()
             assertEquals(expected, actual)
+        }
+    }
+
+    @Nested
+    @DisplayName("Run multiple times")
+    inner class RunMultipleTimes {
+        @Test
+        fun `if user correctly guesses word twice, returns success message twice`() {
+            val randomWordGetterReturnsWords = RandomWordGetterFake("words")
+            val guessGetterReturnsWords = GuessGetterFake("words")
+            val expectedMessage = "You guessed correct!"
+            val expectedCount = 2
+
+            Domain(
+                wordListGetterTest,
+                testMessageDisplayList,
+                randomWordGetterReturnsWords,
+                guessGetterReturnsWords
+            ).run()
+
+            val actual = testMessageDisplayList.getMessagesForTest().count { it == expectedMessage }
+            assertEquals(expectedCount, actual)
+        }
+
+        @Test
+        fun `if user input is q! in first attempt, it ends program`() {
+            val randomWordGetterReturnsWords = RandomWordGetterFake("words")
+            val guessGetterReturnsQuit = GuessGetterFake("q!")
+            val expectedMessage = "Your guess: "
+            val expectedCount = 1
+
+            Domain(
+                wordListGetterTest,
+                testMessageDisplayList,
+                randomWordGetterReturnsWords,
+                guessGetterReturnsQuit
+            ).run()
+
+            val messageList = testMessageDisplayList.getMessagesForTest()
+            val actualCount = messageList.count { it == expectedMessage }
+            val isLastMessage = messageList.last() == expectedMessage
+            assertEquals(expectedCount, actualCount)
+            assertEquals(true, isLastMessage)
+        }
+
+        @Test
+        fun `it returns correct result messages for multiple plays`() {
+            val randomWordGetterReturnsWords = RandomWordGetterFake("words")
+            val guessGetterGuesses = GuessGetterMultipleFake(listOf("words", "test"))
+            val firstExpectedMessage = "You guessed correct!"
+            val secondExpectedMessage = "Oops, the correct word was: words"
+
+            Domain(
+                wordListGetterTest,
+                testMessageDisplayList,
+                randomWordGetterReturnsWords,
+                guessGetterGuesses
+            ).run()
+
+            val messageList = testMessageDisplayList.getMessagesForTest()
+            val firstExpectedMessageCount = messageList.count { it == firstExpectedMessage }
+            val secondExpectedMessageCount = messageList.count { it == secondExpectedMessage }
+            val isCorrectSequence = messageList.indexOf(firstExpectedMessage) < messageList.indexOf(secondExpectedMessage)
+            assertEquals(1, firstExpectedMessageCount)
+            assertEquals(1, secondExpectedMessageCount)
+            assertEquals(true, isCorrectSequence)
         }
     }
 }

@@ -1,4 +1,4 @@
-package TestClasses
+package testClasses
 
 import WordListGetter
 

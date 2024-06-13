@@ -18,9 +18,9 @@ class Domain(
     private fun displayWelcomeMessage() {
         displayMessage(asciiTitle)
         displayMessage("Welcome to Word Games!")
-        displayMessage("You will be shown a scrambled 5-letter word.")
+        displayMessage("You will be shown some scrambled 5-letter words.")
         displayMessage("You have one chance to guess the word!")
-        displayMessage("(To exit, type 'q!' and press Enter)\n")
+        displayMessage("(To exit, type 'q!' and press Enter)")
     }
 
     private fun filterListByWordLength(length: Int): List<String> {
@@ -33,17 +33,28 @@ class Domain(
         return list.contains(input)
     }
 
-    fun run() {
-        val gameList = filterListByWordLength(5)
-        val randomWord = randomWordGetter.getRandomWordFromList(gameList)
+    private fun runGame(wordList: List<String>) {
+        val randomWord = randomWordGetter.getRandomWordFromList(wordList)
         val shuffledWord = randomWordGetter.getWordShuffled(randomWord)
 
-        displayWelcomeMessage()
-        displayMessage("Your word is: $shuffledWord")
+        displayMessage("\nYour word is: $shuffledWord")
         displayMessageInline("Your guess: ")
         val userGuess = guessGetter.getGuessFromUser()
-        if (userGuess == "q!") return
+        if (userGuess == "q!") throw Exception("User quits game")
         val isValid = checkUserInputIsValid(shuffledWord, userGuess)
         return if (isValid) displayMessage("You guessed correct!") else displayMessage("Oops, the correct word was: $randomWord")
+    }
+
+    fun run() {
+        val gameList = filterListByWordLength(5)
+        displayWelcomeMessage()
+
+        for (i in 1..2) {
+            try {
+                runGame(gameList)
+            } catch (e: Exception) {
+                return
+            }
+        }
     }
 }
