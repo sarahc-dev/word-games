@@ -330,5 +330,28 @@ class DomainTest {
             val actual = messageList.containsAll(listOf(retryNumberInput, success))
             assertEquals(true, actual)
         }
+
+        @Test
+        fun `if user does not enter a number for word length, it continues until they do`() {
+            val randomWordGetterReturnsWords = RandomWordGetterFake("words")
+            val guessGetterGuesses = GuessGetterMultipleFake(listOf("words"))
+            val numberInputs = NumberGetterFake(listOf("1", "ok", "no", "what", "5"))
+            val expectedIncorrectInputCount = 3
+            val expectedSuccessCount = 1
+
+            Domain(
+                testWordList,
+                testMessageDisplayList,
+                randomWordGetterReturnsWords,
+                guessGetterGuesses,
+                numberInputs
+            ).run()
+
+            val messageList = testMessageDisplayList.getMessagesForTest()
+            val actualIncorrectInputCount = messageList.count { it == retryNumberInput }
+            val actualSuccessCount = messageList.count { it == success }
+            assertEquals(expectedIncorrectInputCount, actualIncorrectInputCount)
+            assertEquals(expectedSuccessCount, actualSuccessCount)
+        }
     }
 }
