@@ -2,7 +2,8 @@ class Domain(
     wordListGetter: WordListGetter,
     messageDisplay: MessageDisplay,
     private val randomWordGetter: RandomWordGetter,
-    private val guessGetter: GuessGetter
+    private val guessGetter: GuessGetter,
+    private val numberOfWordsGetter: NumberOfWordsGetter
 ) {
     private val list = wordListGetter.getList()
     private val displayMessage = messageDisplay::displayMessageToUser
@@ -20,7 +21,7 @@ class Domain(
         displayMessage("Welcome to Word Games!")
         displayMessage("You will be shown some scrambled 5-letter words.")
         displayMessage("You have one chance to guess the word!")
-        displayMessage("(To exit, type 'q!' and press Enter)")
+        displayMessage("(To exit, type 'q!' and press Enter)\n")
     }
 
     private fun filterListByWordLength(length: Int): List<String> {
@@ -33,28 +34,39 @@ class Domain(
         return list.contains(input)
     }
 
-    private fun runGame(wordList: List<String>) {
+    private fun askUserForNumberOfWords(): Int? {
+        displayMessage("How many words would you like to play?")
+        val userInput = numberOfWordsGetter.getNumberOfWordsFromUser()
+
+        return when {
+            userInput == "q!" -> null
+            userInput?.toIntOrNull() != null -> userInput.toInt()
+            else -> {
+                displayMessage("Oops that's not a number. Try again.\n")
+                askUserForNumberOfWords()
+            }
+        }
+    }
+
+    private fun runGame(wordList: List<String>): Boolean {
         val randomWord = randomWordGetter.getRandomWordFromList(wordList)
         val shuffledWord = randomWordGetter.getWordShuffled(randomWord)
-
         displayMessage("\nYour word is: $shuffledWord")
         displayMessageInline("Your guess: ")
         val userGuess = guessGetter.getGuessFromUser()
-        if (userGuess == "q!") throw Exception("User quits game")
+        if (userGuess == "q!") return false
         val isValid = checkUserInputIsValid(shuffledWord, userGuess)
-        return if (isValid) displayMessage("You guessed correct!") else displayMessage("Oops, the correct word was: $randomWord")
+        if (isValid) displayMessage("You guessed correct!") else displayMessage("Oops, the correct word was: $randomWord")
+        return true
     }
 
     fun run() {
         val gameList = filterListByWordLength(5)
         displayWelcomeMessage()
+        val numberOfWords = askUserForNumberOfWords() ?: return
 
-        for (i in 1..2) {
-            try {
-                runGame(gameList)
-            } catch (e: Exception) {
-                return
-            }
+        for (i in 1..numberOfWords) {
+            if (!runGame(gameList)) return
         }
     }
 }
