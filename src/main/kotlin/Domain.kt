@@ -1,9 +1,9 @@
 class Domain(
-    wordListGetter: WordListGetter,
+    private val wordListGetter: WordListGetter,
     messageDisplay: MessageDisplay,
     private val randomWordGetter: RandomWordGetter,
     private val guessGetter: GuessGetter,
-    private val numberOfWordsGetter: NumberOfWordsGetter
+    private val numberGetter: NumberGetter
 ) {
     private val list = wordListGetter.getList()
     private val displayMessage = messageDisplay::displayMessageToUser
@@ -19,8 +19,8 @@ class Domain(
     private fun displayWelcomeMessage() {
         displayMessage(asciiTitle)
         displayMessage("Welcome to Word Games!")
-        displayMessage("You will be shown some scrambled 5-letter words.")
-        displayMessage("You have one chance to guess the word!")
+        displayMessage("You will be shown a scrambled word.")
+        displayMessage("You have one chance to guess each word!")
         displayMessage("(To exit, type 'q!' and press Enter)\n")
     }
 
@@ -36,14 +36,29 @@ class Domain(
 
     private fun askUserForNumberOfWords(): Int? {
         displayMessage("How many words would you like to play?")
-        val userInput = numberOfWordsGetter.getNumberOfWordsFromUser()
+        val userInput = numberGetter.getNumberOfWordsFromUser()
 
         return when {
             userInput == "q!" -> null
-            userInput?.toIntOrNull() != null -> userInput.toInt()
+            userInput?.toIntOrNull() != null && userInput.toInt() > 0 -> userInput.toInt()
             else -> {
-                displayMessage("Oops that's not a number. Try again.\n")
+                displayMessage("Oops that's not a valid number. Try again.\n")
                 askUserForNumberOfWords()
+            }
+        }
+    }
+
+    private fun askUserForWordLength(min: Int, max: Int): Int? {
+        displayMessage("What length should the words be?")
+        displayMessage("(Please enter a number between $min and $max)")
+        val userInput = numberGetter.getNumberOfWordsFromUser()
+
+        return when {
+            userInput == "q!" -> null
+            userInput?.toIntOrNull() != null && userInput.toInt() >= min && userInput.toInt() <= max -> userInput.toInt()
+            else -> {
+                displayMessage("Oops that's not a valid number. Try again.\n")
+                askUserForWordLength(min, max)
             }
         }
     }
@@ -61,9 +76,10 @@ class Domain(
     }
 
     fun run() {
-        val gameList = filterListByWordLength(5)
         displayWelcomeMessage()
         val numberOfWords = askUserForNumberOfWords() ?: return
+        val lengthOfWords = askUserForWordLength(wordListGetter.minWordLength(), wordListGetter.maxWordLength()) ?: return
+        val gameList = filterListByWordLength(lengthOfWords)
 
         for (i in 1..numberOfWords) {
             if (!runGame(gameList)) return

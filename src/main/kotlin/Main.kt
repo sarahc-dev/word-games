@@ -4,7 +4,7 @@ fun main() {
     val messageDisplay: MessageDisplay = MessageDisplayStdout()
     val randomWordGetter: RandomWordGetter = RandomWordGetterBuiltIn()
     val guessGetter: GuessGetter = GuessGetterStdin()
-    val numberOfWordsGetter = NumberOfWordsGetterStdin()
+    val numberOfWordsGetter = NumberGetterStdin()
 
     // domain
     val app = Domain(wordListGetter, messageDisplay, randomWordGetter, guessGetter, numberOfWordsGetter)

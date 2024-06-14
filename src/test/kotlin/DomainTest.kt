@@ -6,13 +6,14 @@ import testClasses.*
 
 private const val success = "You guessed correct!"
 private const val failureWasWords = "Oops, the correct word was: words"
-private const val retryNumberInput = "Oops that's not a number. Try again.\n"
+private const val retryNumberInput = "Oops that's not a valid number. Try again.\n"
 
 class DomainTest {
-    val wordListGetterTest = WordListGetterTest()
+    val testWordList = WordListGetterFake()
     val testMessageDisplay = MessageDisplayFake()
     val testMessageDisplayList = MessageDisplayListFake()
-    val testNumberOfWordsGetter = NumberOfWordsGetterFake(listOf("2"))
+    val testNumberInputs1Word5Letters = NumberGetterFake(listOf("1", "5"))
+    val testNumberInputs2Word5Letters = NumberGetterFake(listOf("2", "5"))
 
     @Nested
     @DisplayName("Run")
@@ -20,18 +21,18 @@ class DomainTest {
         @Test
         fun `if user input matches the word, returns success message`() {
             // Arrange
-            val randomWordGetterReturnsLogic = RandomWordGetterFake("logic")
+            val randomWordReturnsLogic = RandomWordGetterFake("logic")
             val guessGetterReturnsLogic = GuessGetterFake("logic")
 
             val expected = success
 
             // Act
             Domain(
-                wordListGetterTest,
+                testWordList,
                 testMessageDisplay,
-                randomWordGetterReturnsLogic,
+                randomWordReturnsLogic,
                 guessGetterReturnsLogic,
-                testNumberOfWordsGetter
+                testNumberInputs1Word5Letters
             ).run()
             val actual = testMessageDisplay.getLastMessageForTest()
 
@@ -41,15 +42,15 @@ class DomainTest {
 
         @Test
         fun `if user input is a valid word but does not match, returns success message`() {
-            val randomWordGetterReturnsWords = RandomWordGetterFake("words")
+            val randomWordReturnsWords = RandomWordGetterFake("words")
             val guessGetterReturnsSword = GuessGetterFake("sword")
             val expected = success
             Domain(
-                wordListGetterTest,
+                testWordList,
                 testMessageDisplay,
-                randomWordGetterReturnsWords,
+                randomWordReturnsWords,
                 guessGetterReturnsSword,
-                testNumberOfWordsGetter
+                testNumberInputs1Word5Letters
             ).run()
             val actual = testMessageDisplay.getLastMessageForTest()
             assertEquals(expected, actual)
@@ -57,15 +58,15 @@ class DomainTest {
 
         @Test
         fun `if user input is not a valid word, returns fail message`() {
-            val randomWordGetterReturnsWords = RandomWordGetterFake("words")
+            val randomWordReturnsWords = RandomWordGetterFake("words")
             val guessGetterReturnsHello = GuessGetterFake("hello")
             val expected = failureWasWords
             Domain(
-                wordListGetterTest,
+                testWordList,
                 testMessageDisplay,
-                randomWordGetterReturnsWords,
+                randomWordReturnsWords,
                 guessGetterReturnsHello,
-                testNumberOfWordsGetter
+                testNumberInputs1Word5Letters
             ).run()
             val actual = testMessageDisplay.getLastMessageForTest()
             assertEquals(expected, actual)
@@ -73,15 +74,15 @@ class DomainTest {
 
         @Test
         fun `if user input is valid chars but not a word, returns fail message`() {
-            val randomWordGetterReturnsWords = RandomWordGetterFake("words")
+            val randomWordReturnsWords = RandomWordGetterFake("words")
             val guessGetterReturnsOrdsw = GuessGetterFake("ordsw")
             val expected = failureWasWords
             Domain(
-                wordListGetterTest,
+                testWordList,
                 testMessageDisplay,
-                randomWordGetterReturnsWords,
+                randomWordReturnsWords,
                 guessGetterReturnsOrdsw,
-                testNumberOfWordsGetter
+                testNumberInputs1Word5Letters
             ).run()
             val actual = testMessageDisplay.getLastMessageForTest()
             assertEquals(expected, actual)
@@ -93,11 +94,11 @@ class DomainTest {
             val guessGetterReturnsEmptyString = GuessGetterFake("")
             val expected = failureWasWords
             Domain(
-                wordListGetterTest,
+                testWordList,
                 testMessageDisplay,
                 randomWordGetterReturnsWords,
                 guessGetterReturnsEmptyString,
-                testNumberOfWordsGetter
+                testNumberInputs1Word5Letters
             ).run()
             val actual = testMessageDisplay.getLastMessageForTest()
             assertEquals(expected, actual)
@@ -109,11 +110,11 @@ class DomainTest {
             val guessGetterReturnsNull = GuessGetterFake(null)
             val expected = failureWasWords
             Domain(
-                wordListGetterTest,
+                testWordList,
                 testMessageDisplay,
                 randomWordGetterReturnsWords,
                 guessGetterReturnsNull,
-                testNumberOfWordsGetter
+                testNumberInputs1Word5Letters
             ).run()
             val actual = testMessageDisplay.getLastMessageForTest()
             assertEquals(expected, actual)
@@ -125,11 +126,11 @@ class DomainTest {
             val guessGetterReturnsQuit = GuessGetterFake("q!")
             val expected = "Your guess: "
             Domain(
-                wordListGetterTest,
+                testWordList,
                 testMessageDisplay,
                 randomWordGetterReturnsWords,
                 guessGetterReturnsQuit,
-                testNumberOfWordsGetter
+                testNumberInputs1Word5Letters
             ).run()
             val actual = testMessageDisplay.getLastMessageForTest()
             assertEquals(expected, actual)
@@ -147,11 +148,11 @@ class DomainTest {
             val expectedCount = 2
 
             Domain(
-                wordListGetterTest,
+                testWordList,
                 testMessageDisplayList,
                 randomWordGetterReturnsWords,
                 guessGetterReturnsWords,
-                testNumberOfWordsGetter
+                testNumberInputs2Word5Letters
             ).run()
 
             val actual = testMessageDisplayList.getMessagesForTest().count { it == expectedMessage }
@@ -166,11 +167,11 @@ class DomainTest {
             val expectedCount = 1
 
             Domain(
-                wordListGetterTest,
+                testWordList,
                 testMessageDisplayList,
                 randomWordGetterReturnsWords,
                 guessGetterReturnsQuit,
-                testNumberOfWordsGetter
+                testNumberInputs2Word5Letters
             ).run()
 
             val messageList = testMessageDisplayList.getMessagesForTest()
@@ -188,11 +189,11 @@ class DomainTest {
             val secondExpectedMessage = failureWasWords
 
             Domain(
-                wordListGetterTest,
+                testWordList,
                 testMessageDisplayList,
                 randomWordGetterReturnsWords,
                 guessGetterGuesses,
-                testNumberOfWordsGetter
+                testNumberInputs2Word5Letters
             ).run()
 
             val messageList = testMessageDisplayList.getMessagesForTest()
@@ -208,18 +209,18 @@ class DomainTest {
         fun `if user specifies 4 words, plays game 4 times`() {
             val randomWordGetterReturnsWords = RandomWordGetterFake("words")
             val guessGetterGuesses = GuessGetterMultipleFake(listOf("words", "test", "guess", "dog"))
-            val numberOfWordsGetter = NumberOfWordsGetterFake(listOf("4"))
+            val testNumberInputs4Word5Letters = NumberGetterFake(listOf("4", "5"))
 
             val expectedSuccessMessage = success
             val expectedFailMessage = failureWasWords
             val expectedCount = 4
 
             Domain(
-                wordListGetterTest,
+                testWordList,
                 testMessageDisplayList,
                 randomWordGetterReturnsWords,
                 guessGetterGuesses,
-                numberOfWordsGetter
+                testNumberInputs4Word5Letters
             ).run()
 
             val messageList = testMessageDisplayList.getMessagesForTest()
@@ -231,16 +232,16 @@ class DomainTest {
         fun `if user does not enter a number, it continues until they do`() {
             val randomWordGetterReturnsWords = RandomWordGetterFake("words")
             val guessGetterGuesses = GuessGetterMultipleFake(listOf("words"))
-            val numberOfWordsGetter = NumberOfWordsGetterFake(listOf("no", "ok", "1"))
+            val numberInputs = NumberGetterFake(listOf("no", "ok", "1", "5"))
             val expectedIncorrectInputCount = 2
             val expectedSuccessCount = 1
 
             Domain(
-                wordListGetterTest,
+                testWordList,
                 testMessageDisplayList,
                 randomWordGetterReturnsWords,
                 guessGetterGuesses,
-                numberOfWordsGetter
+                numberInputs
             ).run()
 
             val messageList = testMessageDisplayList.getMessagesForTest()
@@ -254,11 +255,11 @@ class DomainTest {
         fun `if user quits game and does not enter number, it ends program`() {
             val randomWordGetterReturnsWords = RandomWordGetterFake("words")
             val guessGetterGuesses = GuessGetterMultipleFake(listOf("words"))
-            val numberOfWordsGetter = NumberOfWordsGetterFake(listOf("q!"))
+            val numberOfWordsGetter = NumberGetterFake(listOf("q!"))
             val messagesNotExpected = listOf(success, failureWasWords, retryNumberInput)
 
             Domain(
-                wordListGetterTest,
+                testWordList,
                 testMessageDisplayList,
                 randomWordGetterReturnsWords,
                 guessGetterGuesses,
@@ -269,6 +270,65 @@ class DomainTest {
             val actual = messagesNotExpected.all { it !in messageList }
             assertEquals(true, actual)
         }
+    }
 
+    @Nested
+    @DisplayName("Run with user selected word length")
+    inner class RunWithUserSelectedWordLength {
+        @Test
+        fun `if user inputs words of length 4, it plays game with 4 letter words`() {
+            val randomWordGetterReturnsWords = RandomWordGetterFake("test")
+            val guessGetterGuesses = GuessGetterMultipleFake(listOf("test"))
+            val numberInputs = NumberGetterFake(listOf("1", "4"))
+
+            Domain(
+                testWordList,
+                testMessageDisplayList,
+                randomWordGetterReturnsWords,
+                guessGetterGuesses,
+                numberInputs
+            ).run()
+
+            val messageList = testMessageDisplayList.getMessagesForTest()
+            assertEquals(true, messageList.contains(success))
+        }
+
+        @Test
+        fun `if user inputs word length less than exists, asks to try again`() {
+            val randomWordGetterReturnsWords = RandomWordGetterFake("test")
+            val guessGetterGuesses = GuessGetterMultipleFake(listOf("test"))
+            val numberInputs = NumberGetterFake(listOf("1", "1", "4"))
+
+            Domain(
+                testWordList,
+                testMessageDisplayList,
+                randomWordGetterReturnsWords,
+                guessGetterGuesses,
+                numberInputs
+            ).run()
+
+            val messageList = testMessageDisplayList.getMessagesForTest()
+            val actual = messageList.containsAll(listOf(retryNumberInput, success))
+            assertEquals(true, actual)
+        }
+
+        @Test
+        fun `if user inputs word length greater than exists, asks to try again`() {
+            val randomWordGetterReturnsWords = RandomWordGetterFake("test")
+            val guessGetterGuesses = GuessGetterMultipleFake(listOf("test"))
+            val numberInputs = NumberGetterFake(listOf("1", "8", "4"))
+
+            Domain(
+                testWordList,
+                testMessageDisplayList,
+                randomWordGetterReturnsWords,
+                guessGetterGuesses,
+                numberInputs
+            ).run()
+
+            val messageList = testMessageDisplayList.getMessagesForTest()
+            val actual = messageList.containsAll(listOf(retryNumberInput, success))
+            assertEquals(true, actual)
+        }
     }
 }

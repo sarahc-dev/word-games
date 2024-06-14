@@ -1,8 +1,8 @@
 package testClasses
 
-import NumberOfWordsGetter
+import NumberGetter
 
-class NumberOfWordsGetterFake(private val listOfInputs: List<String>): NumberOfWordsGetter {
+class NumberGetterFake(private val listOfInputs: List<String>): NumberGetter {
     private var index = 0
 
     override fun getNumberOfWordsFromUser(): String {
